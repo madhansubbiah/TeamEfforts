@@ -1,4 +1,4 @@
 streamlit==1.45.1
 pandas==2.3.0
 openpyxl==3.1.5
-matplotlib==3.9.4  # Optional, only if you plan to use it
+matplotlib==3.9.4  
