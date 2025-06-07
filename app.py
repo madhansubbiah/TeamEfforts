@@ -3,7 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 # Load the Excel file
-excel_file = r'C:\Users\subbiahm\OneDrive - Merck Sharp & Dohme LLC\Desktop\Team Effort\Team Effort Estimation - Copy.xlsx'
+excel_file = 'TeamEffortEstimation.xlsx'
 df = pd.read_excel(excel_file)
 
 # Trim whitespace from column names
@@ -32,8 +32,12 @@ if not filtered_df.empty:
     total_onshore = filtered_df['Duration in /Hours (Onshore)'].sum()
     total_offshore = filtered_df['Duration in /Hours (Offshore)'].sum()
     
-    # Display totals on the same line
-    st.write(f"Total Duration (Onshore): {total_onshore} hours    |    Total Duration (Offshore): {total_offshore} hours")
+    # Calculate FTE values
+    onsite_fte = total_onshore / 8
+    offshore_fte = total_offshore / 8
+    
+    # Display totals in the desired format
+    st.write(f"Onsite: {onsite_fte:.2f}(FTE) Hours: {total_onshore} | Offshore: {offshore_fte:.2f}(FTE) Hours: {total_offshore}")
 
     # Create a bar chart for the totals
     totals = {'Onshore': total_onshore, 'Offshore': total_offshore}
