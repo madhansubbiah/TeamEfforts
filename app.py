@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 
 # Load the Excel file
 excel_file = 'TeamEffortEstimation.xlsx'
-df = pd.read_excel(excel_file)
+df = pd.read_excel(excel_file, sheet_name='Team Efforts')  # Load the specific worksheet
 
 # Trim whitespace from column names
 df.columns = df.columns.str.strip()
@@ -12,7 +12,7 @@ df.columns = df.columns.str.strip()
 # Display the title
 st.title('Team Effort Estimation Viewer')
 
-# Move filters to the sidebar
+# Move filters to the sidebar for main data
 unique_applications = df['Application'].unique()
 unique_applications = sorted(unique_applications.tolist())
 unique_applications.insert(0, 'All')  # Add 'All' option at the beginning
@@ -21,7 +21,7 @@ selected_application = st.sidebar.selectbox('Select Application:', unique_applic
 unique_categories = df['Category'].unique()
 selected_category = st.sidebar.selectbox('Select Category:', unique_categories)
 
-# Apply filters to the DataFrame
+# Apply filters to the main DataFrame
 filtered_df = df[
     (df['Application'] == selected_application if selected_application != 'All' else True) &
     (df['Category'] == selected_category)
@@ -47,3 +47,25 @@ if not filtered_df.empty:
 
 else:
     st.write("No data available for the selected filters.")
+
+# Option to view the "Team Efforts" worksheet
+if st.sidebar.checkbox('View Team Efforts Data'):
+    st.subheader('Team Efforts Data')
+    
+    # Add filtering options for the displayed Team Efforts data
+    unique_applications_team_efforts = df['Application'].unique()
+    unique_applications_team_efforts = sorted(unique_applications_team_efforts.tolist())
+    unique_applications_team_efforts.insert(0, 'All')  # Add 'All' option at the beginning
+    selected_application_team_efforts = st.selectbox('Filter by Application:', unique_applications_team_efforts)
+
+    unique_categories_team_efforts = df['Category'].unique()
+    selected_category_team_efforts = st.selectbox('Filter by Category:', unique_categories_team_efforts)
+
+    # Apply filters to the Team Efforts DataFrame
+    filtered_team_efforts_df = df[
+        (df['Application'] == selected_application_team_efforts if selected_application_team_efforts != 'All' else True) &
+        (df['Category'] == selected_category_team_efforts)
+    ]
+
+    # Display the filtered DataFrame
+    st.dataframe(filtered_team_efforts_df)  # Display the DataFrame in a table format
