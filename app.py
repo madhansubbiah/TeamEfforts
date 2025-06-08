@@ -13,6 +13,13 @@ df.columns = df.columns.str.strip()
 st.title('Team Effort Estimation Viewer')
 
 # Move filters to the sidebar for main data
+# Add filter for Application Type first
+unique_application_types = df['Application Type'].unique()
+unique_application_types = sorted(unique_application_types.tolist())
+unique_application_types.insert(0, 'All')  # Add 'All' option at the beginning
+selected_application_type = st.sidebar.selectbox('Select Application Type:', unique_application_types)
+
+# Then add filter for Application
 unique_applications = df['Application'].unique()
 unique_applications = sorted(unique_applications.tolist())
 unique_applications.insert(0, 'All')  # Add 'All' option at the beginning
@@ -24,6 +31,7 @@ selected_category = st.sidebar.selectbox('Select Category:', unique_categories)
 # Apply filters to the main DataFrame
 filtered_df = df[
     (df['Application'] == selected_application if selected_application != 'All' else True) &
+    (df['Application Type'] == selected_application_type if selected_application_type != 'All' else True) &
     (df['Category'] == selected_category)
 ]
 
@@ -53,6 +61,13 @@ if st.sidebar.checkbox('View Team Efforts Data'):
     st.subheader('Team Efforts Data')
     
     # Add filtering options for the displayed Team Efforts data
+    # Add filter for Application Type first
+    unique_application_types_team_efforts = df['Application Type'].unique()
+    unique_application_types_team_efforts = sorted(unique_application_types_team_efforts.tolist())
+    unique_application_types_team_efforts.insert(0, 'All')  # Add 'All' option at the beginning
+    selected_application_type_team_efforts = st.selectbox('Filter by Application Type:', unique_application_types_team_efforts)
+
+    # Then add filter for Application
     unique_applications_team_efforts = df['Application'].unique()
     unique_applications_team_efforts = sorted(unique_applications_team_efforts.tolist())
     unique_applications_team_efforts.insert(0, 'All')  # Add 'All' option at the beginning
@@ -64,6 +79,7 @@ if st.sidebar.checkbox('View Team Efforts Data'):
     # Apply filters to the Team Efforts DataFrame
     filtered_team_efforts_df = df[
         (df['Application'] == selected_application_team_efforts if selected_application_team_efforts != 'All' else True) &
+        (df['Application Type'] == selected_application_type_team_efforts if selected_application_type_team_efforts != 'All' else True) &
         (df['Category'] == selected_category_team_efforts)
     ]
 
