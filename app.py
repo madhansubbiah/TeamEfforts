@@ -42,15 +42,38 @@ if not filtered_df.empty:
     total_onshore = filtered_df['Duration in /Hours/Per Day (Onshore)'].sum()
     total_offshore = filtered_df['Duration in /Hours/Per Day (Offshore)'].sum()
     
-    # Display raw totals in a single line
-    st.write(f"Total Onshore Hours: {total_onshore:.2f} | Total Offshore Hours: {total_offshore:.2f}")
-
     # Calculate FTE values
     onsite_fte = total_onshore / 8  # Assuming 8 hours workday
     offshore_fte = total_offshore / 8  # Assuming 8 hours workday
     
-    # Display totals in the desired format
+    # Calculate total FTE
+    total_fte = onsite_fte + offshore_fte
+    
+    # Display onsite and offshore FTEs and daily hours
     st.write(f"Onsite: {onsite_fte:.2f}(FTE) Daily Hours: {total_onshore:.2f} | Offshore: {offshore_fte:.2f}(FTE) Daily Hours: {total_offshore:.2f}")
+    
+    # Display Total FTE
+    st.write(f"Total FTE: {total_fte:.2f}")
+
+    # Additional information for Application Type: ZG
+    if selected_application_type == 'ZG':
+        actual_contract_total = 4  # Given actual/contract total
+        increase = ((total_fte - actual_contract_total) / actual_contract_total) * 100 if actual_contract_total > 0 else 0
+        
+        # Display additional information with the specified format
+        st.write(f"Actual/Contract Total: {actual_contract_total} | ODM&E2E+OTID+CRRDR(2+1+1) => Increase: **{increase:.2f}%**")
+
+    # Additional information for Application Type: Legacy
+    elif selected_application_type == 'Legacy':
+        total_value = 14.4  # Given total FTE value
+        spectrum = 7.77  # Example value for Spectrum
+        sprdr = 6.63  # Example value for SPRDR
+        
+        # Calculate percentage reduction
+        reduction = ((total_value - total_fte) / total_value) * 100 if total_value > 0 else 0
+        
+        # Display additional information with the specified format
+        st.write(f"Actual/Contract Total: {total_value} | Spectrum: {spectrum} | SPRDR: {sprdr} => Reduction: **{reduction:.2f}%**")
 
     # Create a bar chart for the totals with adjusted height
     totals = {'Onshore': total_onshore, 'Offshore': total_offshore}
