@@ -1,6 +1,5 @@
 import streamlit as st
 import pandas as pd
-import matplotlib.pyplot as plt
 
 # Load the Excel file
 excel_file = 'TeamEffortEstimation.xlsx'
@@ -35,23 +34,29 @@ filtered_df = df[
     (df['Category'] == selected_category)
 ]
 
-# Calculate total durations for Onshore and Offshore
+# Exclude "Ad-Hoc" entries from the filtered DataFrame
+filtered_df = filtered_df[filtered_df['Daily/Weekly/Monthly'] != 'Ad-Hoc']
+
+# Calculate total durations for Onshore and Offshore directly from the specified columns
 if not filtered_df.empty:
-    total_onshore = filtered_df['Duration in /Hours (Onshore)'].sum()
-    total_offshore = filtered_df['Duration in /Hours (Offshore)'].sum()
+    total_onshore = filtered_df['Duration in /Hours/Per Day (Onshore)'].sum()
+    total_offshore = filtered_df['Duration in /Hours/Per Day (Offshore)'].sum()
     
+    # Display raw totals in a single line
+    st.write(f"Total Onshore Hours: {total_onshore:.2f} | Total Offshore Hours: {total_offshore:.2f}")
+
     # Calculate FTE values
-    onsite_fte = total_onshore / 8
-    offshore_fte = total_offshore / 8
+    onsite_fte = total_onshore / 8  # Assuming 8 hours workday
+    offshore_fte = total_offshore / 8  # Assuming 8 hours workday
     
     # Display totals in the desired format
-    st.write(f"Onsite: {onsite_fte:.2f}(FTE) Hours: {total_onshore} | Offshore: {offshore_fte:.2f}(FTE) Hours: {total_offshore}")
+    st.write(f"Onsite: {onsite_fte:.2f}(FTE) Daily Hours: {total_onshore:.2f} | Offshore: {offshore_fte:.2f}(FTE) Daily Hours: {total_offshore:.2f}")
 
-    # Create a bar chart for the totals
+    # Create a bar chart for the totals with adjusted height
     totals = {'Onshore': total_onshore, 'Offshore': total_offshore}
     
-    # Use Streamlit's built-in bar chart
-    st.bar_chart(totals)
+    # Use Streamlit's built-in bar chart with specified height
+    st.bar_chart(totals, height=300)  # Adjust height as needed
 
 else:
     st.write("No data available for the selected filters.")
