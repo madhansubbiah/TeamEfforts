@@ -2,33 +2,36 @@ import streamlit as st
 import pandas as pd
 
 # Load the Excel file
-excel_file = 'TeamEffortEstimation.xlsx'
+excel_file = 'TeamEffortEstimation-V1.xlsx'
 df = pd.read_excel(excel_file, sheet_name='Team Efforts')  # Load the specific worksheet
 
 # Trim whitespace from column names
 df.columns = df.columns.str.strip()
+
+# Convert duration columns to numeric
+df['Duration in /Hours/Per Day (Onshore)'] = pd.to_numeric(df['Duration in /Hours/Per Day (Onshore)'], errors='coerce')
+df['Duration in /Hours/Per Day (Offshore)'] = pd.to_numeric(df['Duration in /Hours/Per Day (Offshore)'], errors='coerce')
+
+# Drop rows with NaN values in duration columns
+df = df.dropna(subset=['Duration in /Hours/Per Day (Onshore)', 'Duration in /Hours/Per Day (Offshore)'])
 
 # Display the title
 st.title('Team Effort Estimation Viewer')
 
 # Move filters to the sidebar for main data
 # Add filter for Application Type first, defaulting to 'Legacy'
-unique_application_types = df['Application Type'].unique()
-unique_application_types = sorted(unique_application_types.tolist())
-# Set default value to 'Legacy'
+unique_application_types = sorted(df['Application Type'].unique().tolist())
 default_application_type = 'Legacy' if 'Legacy' in unique_application_types else unique_application_types[0]
 selected_application_type = st.sidebar.selectbox('Select Application Type:', unique_application_types, index=unique_application_types.index(default_application_type))
 
 # Add filter for Category
-unique_categories = df['Category'].unique()
-unique_categories = sorted(unique_categories.tolist())
+unique_categories = sorted(df['Category'].unique().tolist())
 
 # Conditional logic for Category filter
-if selected_application_type == 'Legacy':
-    # If Application Type is 'Legacy', only show 'Operations'
+if selected_application_type in ['ZG', 'Legacy']:
     selected_category = 'Operations'
+    st.sidebar.write('Category: Operations')  # Display the selected category without a selectbox
 else:
-    # Otherwise, allow selection from all categories
     selected_category = st.sidebar.selectbox('Select Category:', unique_categories)
 
 # Apply filters to the main DataFrame
@@ -161,12 +164,31 @@ if not filtered_df.empty:
     # Use Streamlit's built-in bar chart with specified height
     st.bar_chart(totals, height=300)  # Adjust height as needed
 
-else:
-    st.write("No data available for the selected filters.")
-
-# Option to view the "Team Efforts" worksheet
+# Option to view the "Team Efforts" worksheet with direct filtering
 if st.sidebar.checkbox('View Team Efforts Data'):
     st.subheader('Team Efforts Data')
-    
-    # Display the DataFrame without filters
-    st.dataframe(df)  # Display the entire DataFrame in a table format
+
+    # Create dropdowns for filtering
+    selected_application_type = st.selectbox('Select Application Type:', unique_application_types, key='app_type_filter')
+    unique_applications = sorted(df[df['Application Type'] == selected_application_type]['Application'].unique())
+    selected_application = st.selectbox('Select Application:', unique_applications, key='app_filter')
+    unique_categories = sorted(df[df['Application'] == selected_application]['Category'].unique())
+    selected_category = st.selectbox('Select Category:', unique_categories, key='category_filter')
+
+    # Filter the DataFrame based on user selections
+    filtered_team_efforts_df = df[
+        (df['Application Type'] == selected_application_type) &
+        (df['Application'] == selected_application) &
+        (df['Category'] == selected_category)
+    ]
+
+    # Display the filtered DataFrame without index
+    if not filtered_team_efforts_df.empty:
+        st.dataframe(filtered_team_efforts_df[['Application Type', 'Application', 'Category', 
+                                                'Activities/Task',  # Include Activities/Task
+                                                'Duration in /Hours/Per Day (Onshore)', 
+                                                'Duration in /Hours/Per Day (Offshore)']].assign(
+            Total_Hours=lambda x: x['Duration in /Hours/Per Day (Onshore)'] + x['Duration in /Hours/Per Day (Offshore)']
+        ), use_container_width=True)
+    else:
+        st.write("No data available for the selected filters.")
