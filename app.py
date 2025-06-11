@@ -62,31 +62,32 @@ if not filtered_df.empty:
         sum3_onshore = filtered_df.loc[filtered_df['Application'] == 'CRDR', 'Duration in /Hours/Per Day (Onshore)'].sum()
         sum3_offshore = filtered_df.loc[filtered_df['Application'] == 'CRDR', 'Duration in /Hours/Per Day (Offshore)'].sum()
         
-        # Calculate total FTE
-        total_fte = (sum1_onshore + sum1_offshore) / 8 + (sum2_onshore + sum2_offshore) / 8 + (sum3_onshore + sum3_offshore) / 8
-        
-        # Prepare data for the table
+        # Prepare data for the table including the Difference row
         current_values = {
-            "DIAL": f"{((sum1_onshore + sum1_offshore) / 8):.2f}",
-            "OTID": f"{((sum2_onshore + sum2_offshore) / 8):.2f}",
-            "CRDR": f"{((sum3_onshore + sum3_offshore) / 8):.2f}",
-            "Total": f"{total_fte:.2f}"
+            "DIAL": (sum1_onshore + sum1_offshore) / 8,
+            "OTID": (sum2_onshore + sum2_offshore) / 8,
+            "CRDR": (sum3_onshore + sum3_offshore) / 8,
         }
         
         contract_values = {
-            "DIAL": "2",
-            "OTID": "1",
-            "CRDR": "1",
-            "Total": "4"
+            "DIAL": 2,
+            "OTID": 1,
+            "CRDR": 1,
         }
 
-        # Create a DataFrame for the table
+        # Calculate the difference
+        difference_values = {
+            "DIAL": current_values["DIAL"] - contract_values["DIAL"],
+            "OTID": current_values["OTID"] - contract_values["OTID"],
+            "CRDR": current_values["CRDR"] - contract_values["CRDR"],
+        }
+
+        # Create a DataFrame for the table including the Difference row
         table_data = {
-            "Description": ["Current FTE", "Contract FTE"],
-            "DIAL": [current_values["DIAL"], contract_values["DIAL"]],
-            "OTID": [current_values["OTID"], contract_values["OTID"]],
-            "CRDR": [current_values["CRDR"], contract_values["CRDR"]],
-            "Total": [current_values["Total"], contract_values["Total"]]
+            "Description": ["Current FTE", "Contract FTE", "Difference"],  # Add Difference to the description
+            "DIAL": [current_values["DIAL"], contract_values["DIAL"], difference_values["DIAL"]],
+            "OTID": [current_values["OTID"], contract_values["OTID"], difference_values["OTID"]],
+            "CRDR": [current_values["CRDR"], contract_values["CRDR"], difference_values["CRDR"]],
         }
 
         # Create a DataFrame for the combined row
@@ -100,9 +101,6 @@ if not filtered_df.empty:
 
     # Additional information for Application Type: Legacy
     elif selected_application_type == 'Legacy':
-        # Define actual contract totals
-        actual_contract_total = 7.77 + 6.63 + 4.91  # Given values
-
         # Calculate sums based on application categories
         sum1_onshore = filtered_df.loc[filtered_df['Application'].isin(['CORE', 'SMART', 'SPRDR', 'Spectrum I2S', 'SPECTRUM-MUL']),
                                         'Duration in /Hours/Per Day (Onshore)'].sum()
@@ -119,31 +117,25 @@ if not filtered_df.empty:
         sum3_offshore = filtered_df.loc[filtered_df['Application'] == 'SPECTRUM',
                                          'Duration in /Hours/Per Day (Offshore)'].sum()
         
-        # Calculate total FTE
-        total_fte = (sum1_onshore + sum1_offshore + sum2_onshore + sum2_offshore + sum3_onshore + sum3_offshore) / 8
-        
-        # Prepare data for the table
+        # Prepare data for the table without the Difference row
         current_values = {
             "SPECTRUM": (sum3_onshore + sum3_offshore) / 8,
             "SPRDR": (sum1_onshore + sum1_offshore) / 8,
             "E2E": (sum2_onshore + sum2_offshore) / 8,
-            "Total": total_fte
         }
         
         contract_values = {
             "SPECTRUM": 7.77,
             "SPRDR": 6.63,
             "E2E": 4.91,
-            "Total": actual_contract_total
         }
         
-        # Create a DataFrame for the table
+        # Create a DataFrame for the table without the Difference row
         table_data = {
-            "Description": ["Current FTE", "Contract FTE"],
+            "Description": ["Current FTE", "Contract FTE"],  # Exclude Difference from the description
             "SPECTRUM": [current_values["SPECTRUM"], contract_values["SPECTRUM"]],
             "SPRDR": [current_values["SPRDR"], contract_values["SPRDR"]],
             "E2E": [current_values["E2E"], contract_values["E2E"]],
-            "Total": [current_values["Total"], contract_values["Total"]]
         }
 
         # Create a DataFrame for the combined row
@@ -185,10 +177,11 @@ if st.sidebar.checkbox('View Team Efforts Data'):
     # Display the filtered DataFrame without index
     if not filtered_team_efforts_df.empty:
         st.dataframe(filtered_team_efforts_df[['Application Type', 'Application', 'Category', 
+                                                'App Category/Integration',  # Include App Category/Integration
                                                 'Activities/Task',  # Include Activities/Task
                                                 'Duration in /Hours/Per Day (Onshore)', 
                                                 'Duration in /Hours/Per Day (Offshore)']].assign(
             Total_Hours=lambda x: x['Duration in /Hours/Per Day (Onshore)'] + x['Duration in /Hours/Per Day (Offshore)']
-        ), use_container_width=True)
+        ), use_container_width=True, hide_index=True)  # Hide index
     else:
         st.write("No data available for the selected filters.")
