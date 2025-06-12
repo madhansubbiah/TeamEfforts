@@ -61,18 +61,25 @@ if not filtered_df.empty:
 
         sum3_onshore = filtered_df.loc[filtered_df['Application'] == 'CRDR', 'Duration in /Hours/Per Day (Onshore)'].sum()
         sum3_offshore = filtered_df.loc[filtered_df['Application'] == 'CRDR', 'Duration in /Hours/Per Day (Offshore)'].sum()
-        
+
+        # Add Vault Clinical values only for ZG
+        vault_clinical_current = 12.87
+        vault_clinical_contract = 5.1
+        vault_clinical_difference = vault_clinical_current - vault_clinical_contract
+
         # Prepare data for the table including the Difference row
         current_values = {
             "DIAL": (sum1_onshore + sum1_offshore) / 8,
             "OTID": (sum2_onshore + sum2_offshore) / 8,
             "CRDR": (sum3_onshore + sum3_offshore) / 8,
+            "Vault Clinical": vault_clinical_current  # Add Vault Clinical current FTE
         }
-        
+
         contract_values = {
             "DIAL": 2,
             "OTID": 1,
             "CRDR": 1,
+            "Vault Clinical": vault_clinical_contract  # Add Vault Clinical contract FTE
         }
 
         # Calculate the difference
@@ -80,6 +87,7 @@ if not filtered_df.empty:
             "DIAL": current_values["DIAL"] - contract_values["DIAL"],
             "OTID": current_values["OTID"] - contract_values["OTID"],
             "CRDR": current_values["CRDR"] - contract_values["CRDR"],
+            "Vault Clinical": current_values["Vault Clinical"] - contract_values["Vault Clinical"]  # Add Vault Clinical difference
         }
 
         # Create a DataFrame for the table including the Difference row
@@ -88,6 +96,7 @@ if not filtered_df.empty:
             "DIAL": [current_values["DIAL"], contract_values["DIAL"], difference_values["DIAL"]],
             "OTID": [current_values["OTID"], contract_values["OTID"], difference_values["OTID"]],
             "CRDR": [current_values["CRDR"], contract_values["CRDR"], difference_values["CRDR"]],
+            "Vault Clinical": [current_values["Vault Clinical"], contract_values["Vault Clinical"], difference_values["Vault Clinical"]]  # Add Vault Clinical
         }
 
         # Create a DataFrame for the combined row
