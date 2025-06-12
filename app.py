@@ -63,8 +63,8 @@ if not filtered_df.empty:
         sum3_offshore = filtered_df.loc[filtered_df['Application'] == 'CRDR', 'Duration in /Hours/Per Day (Offshore)'].sum()
 
         # Add Vault Clinical values only for ZG
-        vault_clinical_current = 12.87
-        vault_clinical_contract = 5.1
+        vault_clinical_current = 12
+        vault_clinical_contract = 5
         vault_clinical_difference = vault_clinical_current - vault_clinical_contract
 
         # Prepare data for the table including the Difference row
@@ -134,8 +134,8 @@ if not filtered_df.empty:
         }
         
         contract_values = {
-            "SPECTRUM": 7.77,
-            "SPRDR": 6.63,
+            "SPECTRUM": 7,
+            "SPRDR": 6,
             "E2E": 4.91,
         }
         
